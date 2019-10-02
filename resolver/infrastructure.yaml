@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  ProjectName:
+    Type: String
+
+  Environment:
+    Type: String
+    AllowedValues: # Changing one of these values require change in multiple places!
+      - 'development'
+      - 'staging'
+      - 'production'
+
+Resources:
+  Resolver:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/graphql.resolver
+      MemorySize: 512
+      Timeout: 60
+      Runtime: nodejs10.x
+      Environment:
+        Variables:
+          REGION: !Sub ${AWS::Region}
+          USER_TABLE_NAME: !Ref UserTable
+          POSTS_TABLE_NAME: !Ref PostTable
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:DeleteItem'
+                - 'dynamodb:Scan'
+              Resource: !GetAtt UserTable.Arn
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:DeleteItem'
+              Resource: !GetAtt PostTable.Arn
+
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  PostTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  ResolverArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub '${ProjectName}-graphql-resolver-${Environment}'
+      Type: String
+      Value: !GetAtt Resolver.Arn
+      Description:
+        !Sub 'The ${ProjectName} service resolver ARN to be used in
+        ${Environment}'
