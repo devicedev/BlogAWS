@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  ProjectName:
+    Type: String
+  Environment:
+    Type: String
+    AllowedValues:
+    - development
+    - staging
+    - production
+Resources:
+  LoggingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: ${ProjectName}-data-gateway-logging-role-${Environment}
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: appsync.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSAppSyncPushToCloudWatchLogs
+  InvokeLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: appsync.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: allow-access-to-lambda-from-appsync
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: lambda:invokeFunction
+            Resource:
+            - Fn::Sub: '{{resolve:ssm:${ProjectName}-graphql-resolver-${Environment}:1}}'
+  GraphQLAPI:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name:
+        Fn::Sub: ${ProjectName}-data-gateway-graphqlapi-${Environment}
+      AuthenticationType: API_KEY
+  GraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      Definition: "type Query {\n\n  me: UserOutput!\n\n}\ntype Mutation {\n\n  register(input:\
+        \ RegisterInput!): UserOutput!\n  login(input: LoginInput!): UserOutput!\n\
+        \n\n}\n\ninput RegisterInput {\n  name: String!\n  email: String!\n  password:\
+        \ String!\n}\n\ntype UserOutput {\n  success: Boolean!\n  error: Error\n \
+        \ data: User\n}\ninput LoginInput {\n  email: String!\n  password: String!\n\
+        }\n\ntype User{\n  id: ID!\n  name: String!\n  email: String!\n  createdAt:\
+        \ String!\n  updatedAt: String!\n  jwt: String\n\n}\ntype Error {\n  code:String,\n\
+        \  message:String\n\n}\n"
+  DataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      Name:
+        Fn::Sub: ${ProjectName}_data_gateway_datasource_${Environment}
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      LambdaConfig:
+        LambdaFunctionArn:
+          Fn::Sub: '{{resolve:ssm:${ProjectName}-graphql-resolver-${Environment}:1}}'
+      ServiceRoleArn:
+        Fn::GetAtt:
+        - InvokeLambdaRole
+        - Arn
+      Type: AWS_LAMBDA
+  RegisterResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Mutation
+      FieldName: register
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"register\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  LoginResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Mutation
+      FieldName: login
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"login\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  MeResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Query
+      FieldName: me
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"me\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  GraphQLAPIUrlParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name:
+        Fn::Sub: ${ProjectName}-data-gateway-url-${Environment}
+      Type: String
+      Value:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - GraphQLUrl
+      Description:
+        Fn::Sub: The ${ProjectName} GraphQLUrl for the data-gateway to be used in
+          ${Environment}

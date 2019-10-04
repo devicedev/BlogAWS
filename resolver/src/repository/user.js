@@ -20,23 +20,24 @@ module.exports = {
 
 async function saveUser(userData) {
     try {
-
         const params = {
             TableName,
             Item: fromUserDataToDynamoItem(userData)
         };
 
+        global.logInfo('dynamo.saveUser', params);
+
         await dynamo.put(params).promise();
 
     } catch (err) {
-        //logging
+        global.logError('dynamo.saveUser', err);
+
         throw err;
     }
 }
 
 async function getUser(userId) {
     try {
-
         const params = {
             TableName,
             Key: userId
@@ -44,29 +45,32 @@ async function getUser(userId) {
 
         const data = await dynamo.get(params).promise();
 
+        global.logInfo('dynamo.getUser', params);
+
         return fromDynamoItemToUserData(data.Item);
 
     } catch (err) {
-        //logging
+        global.logError('dynamo.getUser', err);
+
         throw err;
-
     }
-
 }
 
 async function getAllUsers() {
     try {
-
         const params = {
             TableName
         };
 
         const data = await dynamo.scan(params).promise();
 
+        global.logInfo('dynamo.getAllUsers', params);
+
         return data.Item.map((item) => fromDynamoItemToUserData(item))
 
     } catch (err) {
-        //logging
+        global.logError('dynamo.getAllUsers', err);
+
         throw err;
     }
 }

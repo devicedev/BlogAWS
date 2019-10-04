@@ -46,7 +46,7 @@ Resources:
               - Effect: Allow
                 Action: lambda:invokeFunction
                 Resource:
-                  - !Sub '{{resolve:ssm:${ProjectName}-elab-graphql-resolver-${Environment}:1}}'
+                  - !Sub '{{resolve:ssm:${ProjectName}-graphql-resolver-${Environment}:1}}'
 
   GraphQLAPI:
     Type: AWS::AppSync::GraphQLApi
@@ -97,14 +97,18 @@ Resources:
           jwt: String
 
         }
+        type Error {
+          code:String,
+          message:String
 
+        }
   DataSource:
     Type: AWS::AppSync::DataSource
     Properties:
       Name: !Sub '${ProjectName}_data_gateway_datasource_${Environment}'
       ApiId: !GetAtt GraphQLAPI.ApiId
       LambdaConfig:
-        LambdaFunctionArn: !Sub '{{resolve:ssm:${ProjectName}-elab-graphql-resolver-${Environment}:1}}'
+        LambdaFunctionArn: !Sub '{{resolve:ssm:${ProjectName}-graphql-resolver-${Environment}:1}}'
       ServiceRoleArn: !GetAtt InvokeLambdaRole.Arn
       Type: AWS_LAMBDA
 

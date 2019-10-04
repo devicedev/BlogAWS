@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket blog-aws-lambda-devicedev --profile blog",
+    "cf:deploy": "aws --region us-east-1 cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name data-gateway-dev --parameter-overrides ProjectName=blog Environment=development --profile blog",
+    "build": "npm i && mkdir -p build && npm run cf:package",
+    "deploy": "npm run build && npm run cf:deploy"
   },
   "keywords": [],
   "author": "",

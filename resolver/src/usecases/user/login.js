@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
-const {InvalidEmailOrPasswordException} = require('@exception');
+const {InvalidEmailOrPasswordException} = require('@exceptions');
 
 module.exports = ({getAllUsers}) => async (input) => {
     const users = await getAllUsers();

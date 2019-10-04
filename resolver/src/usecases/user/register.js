@@ -8,7 +8,7 @@ const {UserAlreadyExistsException} = require('@exceptions');
 module.exports = ({saveUser, getAllUsers}) => async (creationInputData) => {
     const users = await getAllUsers();
 
-    if(emailTaken(creationInputData.email,users))
+    if (emailTaken(creationInputData.email, users))
         throw UserAlreadyExistsException();
 
     const user = await create(creationInputData);

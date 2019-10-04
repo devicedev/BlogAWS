@@ -1,9 +1,9 @@
 const uuidv4 = require('uuid/v4');
 const Joi = require('@hapi/joi');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const PasswordComplexity = require('joi-password-complexity');
 
-const {MissingRequiredFieldException} = require('@exceptions');
+const {UsersValidationException} = require('@exceptions');
 
 const {UserData} = require('./data');
 
@@ -11,12 +11,11 @@ module.exports = {
     create
 };
 
-const create = async (creationData) => {
-
+async function create(creationData) {
     const result = validate();
 
     if (result.error) {
-        throw MissingRequiredFieldException();
+        throw UsersValidationException();
     }
 
     const data = {
@@ -32,9 +31,7 @@ const create = async (creationData) => {
 
     return UserData(data);
 
-
     function validate() {
-
         const schema = makeValidationSchema();
 
         return schema.validate(creationData);
@@ -53,8 +50,6 @@ const create = async (creationData) => {
                     requirementCount: 3,
                 }),
             };
-
         }
     }
-
-};
+}

@@ -10,22 +10,19 @@ const exception = (message, def, code) => {
 
 module.exports = {
 
-    MissingRequiredFieldsException: (message) => exception(
+    UsersValidationException: (message) => exception(
         message,
-        'Some required fields are missing',
+        'The validation of the user failed',
         'MissingRequiredFieldsException'
-    ),
-    UserAlreadyExistsException: (message) => exception(
+    ), UserAlreadyExistsException: (message) => exception(
         message,
         'A user with the same email already exists',
         'UserAlreadyExistsException'
-    ),
-    InvalidEmailOrPasswordException: (message) => exception(
+    ), InvalidEmailOrPasswordException: (message) => exception(
         message,
         'Invalid email or password',
         'InvalidEmailOrPassword'
-    ),
-    NoJWTException: (message) => exception(
+    ), NoJWTException: (message) => exception(
         message,
         'No authentication token was provided',
         'NoJWTException'
@@ -33,6 +30,10 @@ module.exports = {
         message,
         'The authentication token provided is not valid',
         'InvalidJWTException'
+    ), PostsValidationException: (message) => exception(
+        message,
+        'The validation of the post failed',
+        'PostsValidationException'
     )
 
 

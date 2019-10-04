@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket blog-aws-lambda-devicedev --profile blog",
+    "cf:deploy": "aws --region us-east-1 cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name blog-resolver-dev --parameter-overrides ProjectName=blog Environment=development --profile blog",
+    "build": "npm i && mkdir -p build && npm run cf:package",
+    "deploy": "npm run build && npm run cf:deploy"
   },
   "keywords": [],
   "author": "",
@@ -12,15 +15,16 @@
   "dependencies": {
     "@hapi/joi": "^16.1.4",
     "@types/aws-sdk": "^2.7.0",
-    "@types/bcrypt": "^3.0.0",
+    "@types/bcryptjs": "^2.4.2",
     "@types/hapi__joi": "^15.0.4",
+    "@types/jest": "^24.0.18",
     "@types/joi": "^14.3.3",
     "@types/joi-password-complexity": "^3.1.0",
     "@types/jsonwebtoken": "^8.3.4",
     "@types/module-alias": "^2.0.0",
     "@types/uuid": "^3.4.5",
     "aws-sdk": "^2.539.0",
-    "bcrypt": "^3.0.6",
+    "bcryptjs": "^2.4.3",
     "joi-password-complexity": "^3.1.0",
     "jsonwebtoken": "^8.5.1",
     "module-alias": "^2.2.1",
@@ -31,6 +35,11 @@
     "@usecases": "src/usecases",
     "@user": "src/entities/user",
     "@post": "src/entities/post",
-    "@repository": "src/repository"
+    "@repository": "src/repository",
+    "@utils": "src/utils",
+    "@logger": "src/utils/logger.js"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
   }
 }

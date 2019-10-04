@@ -1,4 +1,5 @@
 require('module-alias/register');
+require('@logger');
 
 const jwt = require('@utils/jwt');
 
@@ -8,6 +9,7 @@ const {getAuthUser} = require('@utils/getAuthUser');
 
 const {
     user: {register, login},
+    // posts: {createPost, getPost, getAllPosts}
 
 
 } = require('@usecases');
@@ -16,7 +18,14 @@ const {
     user: {saveUser, getUser, getAllUsers}
 } = require('@repository');
 
+
 exports.resolver = async ({field, arguments: {input}, headers}) => {
+
+    global.logInfo('graphql.resolve', {
+        field,
+        arguments,
+        headers
+    });
 
     switch (field) {
 
@@ -25,7 +34,9 @@ exports.resolver = async ({field, arguments: {input}, headers}) => {
         case 'login':
             return await resolveLogin(input, headers);
         case 'me':
-            return await resolveMe(headers)
+            return await resolveMe(headers);
+        case 'createPost':
+            return await resolveCreatePost(input, headers);
     }
 
 };
@@ -33,7 +44,7 @@ exports.resolver = async ({field, arguments: {input}, headers}) => {
 async function resolveRegister(input, headers) {
     try {
 
-        const userData = await register(saveUser, getAllUsers)(input);
+        const userData = await register({saveUser, getAllUsers})(input);
 
         const userDataWithJWT = Object.freeze({
 
@@ -47,7 +58,6 @@ async function resolveRegister(input, headers) {
     } catch (err) {
 
         return createFailureResponse(err);
-
     }
 }
 
@@ -69,9 +79,7 @@ async function resolveLogin(input, headers) {
     } catch (err) {
 
         return createFailureResponse(err);
-
     }
-
 }
 
 async function resolveMe(headers) {
@@ -85,8 +93,18 @@ async function resolveMe(headers) {
     } catch (err) {
         return createFailureResponse(err);
     }
-
 }
-async function resolve() {
-    
+
+async function resolveCreatePost(input, headers) {
+    try {
+
+        // const post = await createPost({savePost, });
+
+
+
+
+    } catch (err) {
+
+        return createFailureResponse(err);
+    }
 }
