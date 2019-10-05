@@ -5,7 +5,7 @@ module.exports = {
         success: true,
         error: null
     }),
-    createFailureresponse: (err) => ({
+    createFailureResponse: (err) => ({
         data: null,
         success: false,
         error: {

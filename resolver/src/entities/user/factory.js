@@ -1,9 +1,8 @@
 const uuidv4 = require('uuid/v4');
 const Joi = require('@hapi/joi');
 const bcrypt = require('bcryptjs');
-const PasswordComplexity = require('joi-password-complexity');
 
-const {UsersValidationException} = require('@exceptions');
+const {UserValidationException} = require('@exceptions');
 
 const {UserData} = require('./data');
 
@@ -14,8 +13,10 @@ module.exports = {
 async function create(creationData) {
     const result = validate();
 
+    console.log(result.error);
+
     if (result.error) {
-        throw UsersValidationException();
+        throw UserValidationException(result.error.message);
     }
 
     const data = {
@@ -37,19 +38,11 @@ async function create(creationData) {
         return schema.validate(creationData);
 
         function makeValidationSchema() {
-            return {
+            return Joi.object().keys({
                 name: Joi.string().min(1).max(255).required(),
                 email: Joi.string().email().required(),
-                password: new PasswordComplexity({
-                    min: 8,
-                    max: 26,
-                    lowerCase: 1,
-                    upperCase: 1,
-                    numeric: 1,
-                    symbol: 0,
-                    requirementCount: 3,
-                }),
-            };
+                password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/).required(),
+            });
         }
     }
 }

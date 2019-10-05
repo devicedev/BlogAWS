@@ -48,7 +48,7 @@ Resources:
             Fn::GetAtt:
             - PostTable
             - Arn
-      CodeUri: s3://blog-aws-lambda-devicedev/b773ec069a839bc2d894ece176de24ab
+      CodeUri: s3://blog-aws-lambda-devicedev/737418c9e50392b078c5aec6b5bcf7d3
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties:

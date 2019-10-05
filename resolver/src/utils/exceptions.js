@@ -10,7 +10,7 @@ const exception = (message, def, code) => {
 
 module.exports = {
 
-    UsersValidationException: (message) => exception(
+    UserValidationException: (message) => exception(
         message,
         'The validation of the user failed',
         'MissingRequiredFieldsException'
@@ -30,10 +30,18 @@ module.exports = {
         message,
         'The authentication token provided is not valid',
         'InvalidJWTException'
-    ), PostsValidationException: (message) => exception(
+    ), PostValidationException: (message) => exception(
         message,
         'The validation of the post failed',
-        'PostsValidationException'
+        'PostValidationException'
+    ), PostNotFoundException: (message) => exception(
+        message,
+        'Post not found',
+        'PostNotFoundException'
+    ), UserHasNoAccessToPostException: (message) => exception(
+        message,
+        'You don\'t have access to the given post',
+        'UserHasNoAccessToPostException'
     )
 
 

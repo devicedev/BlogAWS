@@ -9,11 +9,12 @@ module.exports = ({getUser}) => async (headers) => {
 
     if (!token)
         throw NoJWTException();
+
     let payload;
+
     try {
 
         payload = jwt.verify(token, jwtSecret).userId;
-
 
     } catch (err) {
         throw InvalidJWTException();

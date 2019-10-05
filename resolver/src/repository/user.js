@@ -66,7 +66,7 @@ async function getAllUsers() {
 
         global.logInfo('dynamo.getAllUsers', params);
 
-        return data.Item.map((item) => fromDynamoItemToUserData(item))
+        return data.Items.map((item) => fromDynamoItemToUserData(item))
 
     } catch (err) {
         global.logError('dynamo.getAllUsers', err);

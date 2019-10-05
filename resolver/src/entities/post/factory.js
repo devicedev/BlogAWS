@@ -2,7 +2,7 @@ const uuidv4 = require('uuid/v4');
 const Joi = require('@hapi/joi');
 
 const {
-    PostsValidationException
+    PostValidationException
 } = require('@exceptions');
 
 const {
@@ -15,12 +15,12 @@ module.exports = {
 
 
 async function create(data) {
-
     const result = validate();
 
     if (result.error) {
-        throw PostsValidationException();
+        throw PostValidationException(result.error.message);
     }
+
     const post = {
         id: uuidv4(),
         createdAt: Date.now(),
@@ -30,7 +30,6 @@ async function create(data) {
 
     return PostData(post);
 
-
     function validate() {
 
         const schema = makeValidationSchema();
@@ -39,11 +38,11 @@ async function create(data) {
 
         function makeValidationSchema() {
             return Joi.object({
+                userId: Joi.string().uuid().required(),
                 title: Joi.string().min(1).max(255).required(),
                 content: Joi.string().min(1).max(65500).required(),
                 draft: Joi.boolean().required()
             });
         }
-
     }
 }
