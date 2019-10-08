@@ -1,19 +1,15 @@
-const {UserData} = require('@user/data');
-const {PostData} = require('@post/data');
-
-
+const { UserData } = require("@user/data");
+const { PostData } = require("@post/data");
 
 module.exports = {
     fromDynamoItemToUserData,
     fromUserDataToDynamoItem,
     fromDynamoItemToPostData,
-    fromPostDataToDynamoItem,
-
+    fromPostDataToDynamoItem
 };
 
 function fromDynamoItemToUserData(dynamoItem) {
-    if (!dynamoItem)
-        return undefined;
+    if (!dynamoItem) return undefined;
 
     return UserData(dynamoItem);
 }
@@ -21,27 +17,24 @@ function fromDynamoItemToUserData(dynamoItem) {
 function fromUserDataToDynamoItem(userData) {
     const dynamoItem = {};
 
-    Object.keys(userData).forEach((key) => {
-        if (userData[key] !== '')
-            dynamoItem[key] = userData[key];
+    Object.keys(userData).forEach(key => {
+        if (userData[key] !== "") dynamoItem[key] = userData[key];
     });
 
     return dynamoItem;
-
 }
 
 function fromDynamoItemToPostData(dynamoItem) {
-    if (!dynamoItem)
-        return undefined;
+    if (!dynamoItem) return undefined;
+
     return PostData(dynamoItem);
 }
 function fromPostDataToDynamoItem(postData) {
     const dynamoItem = {};
 
-    Object.keys(postData).forEach((key) => {
-        if(postData[key] !== '')
-            dynamoItem[key] = postData[key];
+    Object.keys(postData).forEach(key => {
+        if (postData[key] !== "") dynamoItem[key] = postData[key];
     });
-    return dynamoItem;
 
+    return dynamoItem;
 }

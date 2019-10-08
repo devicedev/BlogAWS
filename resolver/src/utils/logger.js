@@ -1,7 +1,7 @@
-const util = require('util');
+const util = require("util");
 
 global.logInfo = function(operation, data) {
-    if (process.env.LOG === 'NO_LOG') {
+    if (process.env.LOG === "NO_LOG") {
         return;
     }
 
@@ -11,7 +11,7 @@ global.logInfo = function(operation, data) {
 };
 
 global.logError = function(operation, err) {
-    if (process.env.LOG === 'NO_LOG') {
+    if (process.env.LOG === "NO_LOG") {
         return;
     }
 

@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test:unit": "clear && export LOG=NO_LOG && jest",
+    "test:unit:watch": "clear && export LOG=NO_LOG && jest --watchAll",
     "cf:package": "aws cloudformation package --template-file infrastructure.yaml --output-template-file build/infrastructure.packaged.yaml --s3-bucket blog-aws-lambda-devicedev --profile blog",
     "cf:deploy": "aws --region us-east-1 cloudformation deploy --template-file build/infrastructure.packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name blog-resolver-dev --parameter-overrides ProjectName=blog Environment=development --profile blog",
     "build": "npm i && mkdir -p build && npm run cf:package",
@@ -14,21 +16,22 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^16.1.4",
+    "aws-sdk": "^2.539.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1",
+    "module-alias": "^2.2.1",
+    "uuid": "^3.3.3",
+    "faker": "^4.1.0"
+  },
+  "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/hapi__joi": "^15.0.4",
     "@types/jest": "^24.0.18",
-    "@types/joi": "^14.3.3",
-    "@types/joi-password-complexity": "^3.1.0",
     "@types/jsonwebtoken": "^8.3.4",
     "@types/module-alias": "^2.0.0",
     "@types/uuid": "^3.4.5",
-    "aws-sdk": "^2.539.0",
-    "bcryptjs": "^2.4.3",
-    "joi-password-complexity": "^3.1.0",
-    "jsonwebtoken": "^8.5.1",
-    "module-alias": "^2.2.1",
-    "uuid": "^3.3.3"
+    "jest": "^24.9.0"
   },
   "_moduleAliases": {
     "@exceptions": "src/utils/exceptions.js",
@@ -37,9 +40,22 @@
     "@post": "src/entities/post",
     "@repository": "src/repository",
     "@utils": "src/utils",
-    "@logger": "src/utils/logger.js"
+    "@logger": "src/utils/logger.js",
+    "@tests": "src/tests"
   },
-  "devDependencies": {
-    "jest": "^24.9.0"
+  "jest": {
+    "moduleNameMapper": {
+      "@exceptions": "<rootDir>/src/utils/exceptions.js",
+      "@usecases": "<rootDir>/src/usecases",
+      "@user": "<rootDir>/src/entities/user",
+      "@post": "<rootDir>/src/entities/post",
+      "@repository": "<rootDir>/src/repository",
+      "@utils/getAuthUser": "<rootDir>/src/utils/getAuthUser.js",
+      "@utils/jwt": "<rootDir>/src/utils/jwt.js",
+      "@logger": "<rootDir>/src/utils/logger.js",
+      "@tests/data": "<rootDir>/tests/unit/data",
+      "@tests/assertions": "<rootDir>/tests/unit/assertions",
+      "@tests/utils/assertions": "<rootDir>/tests/utils/assertions.js"
+    }
   }
 }

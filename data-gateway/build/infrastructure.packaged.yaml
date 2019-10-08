@@ -58,14 +58,24 @@ Resources:
         Fn::GetAtt:
         - GraphQLAPI
         - ApiId
-      Definition: "type Query {\n\n  me: UserOutput!\n\n}\ntype Mutation {\n\n  register(input:\
-        \ RegisterInput!): UserOutput!\n  login(input: LoginInput!): UserOutput!\n\
-        \n\n}\n\ninput RegisterInput {\n  name: String!\n  email: String!\n  password:\
-        \ String!\n}\n\ntype UserOutput {\n  success: Boolean!\n  error: Error\n \
-        \ data: User\n}\ninput LoginInput {\n  email: String!\n  password: String!\n\
-        }\n\ntype User{\n  id: ID!\n  name: String!\n  email: String!\n  createdAt:\
-        \ String!\n  updatedAt: String!\n  jwt: String\n\n}\ntype Error {\n  code:String,\n\
-        \  message:String\n\n}\n"
+      Definition: "type Query {\n\n  me: UserOutput!\n  getUserPosts: PostsOutput!\n\
+        \  getPosts: PostsOutput!\n\n}\n\ntype Mutation {\n\n  register(input: RegisterInput!):\
+        \ UserOutput!\n  login(input: LoginInput!): UserOutput!\n\n  createPost(input:\
+        \ CreatePostInput!): PostOutput!\n  updatePost(input: UpdatePostInput!): PostOutput!\n\
+        \  deletePost(input: DeletePostInput!): PostOutput!\n\n}\n\ninput RegisterInput\
+        \ {\n  name: String!\n  email: String!\n  password: String!\n}\n\ninput LoginInput\
+        \ {\n  email: String!\n  password: String!\n}\n\ntype UserOutput {\n  success:\
+        \ Boolean!\n  error: Error\n  data: User\n}\n\n\ninput CreatePostInput {\n\
+        \  title: String!\n  content: String!\n  draft: Boolean!\n}\n\ninput UpdatePostInput\
+        \ {\n  id: ID!\n  updateFields: PostUpdate!\n}\n\ninput PostUpdate {\n  title:\
+        \ String\n  content: String\n  draft: Boolean\n}\n\ninput DeletePostInput\
+        \ {\n  id: ID!\n}\n\ntype PostOutput {\n  success: Boolean!\n  error: Error\n\
+        \  data: Post\n}\n\ntype PostsOutput {\n  success: Boolean!\n  error: Error\n\
+        \  data: [Post]\n}\n\n\ntype User {\n  id: ID!\n  name: String!\n  email:\
+        \ String!\n  createdAt: String!\n  updatedAt: String!\n  jwt: String\n}\n\n\
+        type Post {\n  id: ID!\n  title: String!\n  content: String!\n  draft: Boolean!\n\
+        \  userId: ID!\n  createdAt: String!\n  updatedAt: String!\n}\n\ntype Error\
+        \ {\n  code: String,\n  message: String\n}\n"
   DataSource:
     Type: AWS::AppSync::DataSource
     Properties:
@@ -134,6 +144,96 @@ Resources:
       FieldName: me
       RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
         : \"Invoke\",\n  \"payload\": {\n    \"field\": \"me\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  CreatePostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Mutation
+      FieldName: createPost
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"createPost\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  UpdatePostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Mutation
+      FieldName: updatePost
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"updatePost\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  DeletePostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Mutation
+      FieldName: deletePost
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"deletePost\",\n    \"arguments\"\
+        : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  GetUserPostsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Query
+      FieldName: getUserPosts
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"getUserPosts\",\n    \"\
+        arguments\": $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
+        \  }\n}\n"
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  GetPostsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - GraphQLAPI
+        - ApiId
+      DataSourceName:
+        Fn::GetAtt:
+        - DataSource
+        - Name
+      TypeName: Query
+      FieldName: getPosts
+      RequestMappingTemplate: "{\n  \"version\": \"2017-02-28\",\n  \"operation\"\
+        : \"Invoke\",\n  \"payload\": {\n    \"field\": \"getPosts\",\n    \"arguments\"\
         : $utils.toJson($context.arguments),\n    \"headers\": $utils.toJson($context.request.headers)\n\
         \  }\n}\n"
       ResponseMappingTemplate: $utils.toJson($context.result)

@@ -23,7 +23,7 @@ Resources:
             Fn::Sub: ${AWS::Region}
           USER_TABLE_NAME:
             Ref: UserTable
-          POSTS_TABLE_NAME:
+          POST_TABLE_NAME:
             Ref: PostTable
       Policies:
       - Statement:
@@ -48,7 +48,7 @@ Resources:
             Fn::GetAtt:
             - PostTable
             - Arn
-      CodeUri: s3://blog-aws-lambda-devicedev/737418c9e50392b078c5aec6b5bcf7d3
+      CodeUri: s3://blog-aws-lambda-devicedev/ffd9bb4a7e9c253abc93ea5c9ada92dc
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -69,10 +69,14 @@ Resources:
         AttributeType: S
       - AttributeName: userId
         AttributeType: S
+      - AttributeName: draft
+        AttributeType: S
       KeySchema:
       - AttributeName: userId
         KeyType: HASH
       - AttributeName: id
+        KeyType: RANGE
+      - AttributeName: draft
         KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 1

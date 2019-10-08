@@ -1,6 +1,6 @@
-module.exports = {PostData};
+module.exports = { PostData };
 
-function PostData({id, title, content, userId, draft, createdAt, updatedAt}) {
+function PostData({ id, title, content, userId, draft, createdAt, updatedAt }) {
     return Object.freeze({
         id,
         title,

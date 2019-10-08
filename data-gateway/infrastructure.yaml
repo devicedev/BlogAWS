@@ -11,6 +11,7 @@ Parameters:
       - 'development'
       - 'staging'
       - 'production'
+
 Resources:
   LoggingRole:
     Type: AWS::IAM::Role
@@ -62,13 +63,19 @@ Resources:
         type Query {
 
           me: UserOutput!
+          getUserPosts: PostsOutput!
+          getPosts: PostsOutput!
 
         }
+
         type Mutation {
 
           register(input: RegisterInput!): UserOutput!
           login(input: LoginInput!): UserOutput!
 
+          createPost(input: CreatePostInput!): PostOutput!
+          updatePost(input: UpdatePostInput!): PostOutput!
+          deletePost(input: DeletePostInput!): PostOutput!
 
         }
 
@@ -78,29 +85,74 @@ Resources:
           password: String!
         }
 
-        type UserOutput {
-          success: Boolean!
-          error: Error
-          data: User
-        }
         input LoginInput {
           email: String!
           password: String!
         }
 
-        type User{
+        type UserOutput {
+          success: Boolean!
+          error: Error
+          data: User
+        }
+
+
+        input CreatePostInput {
+          title: String!
+          content: String!
+          draft: Boolean!
+        }
+
+        input UpdatePostInput {
+          id: ID!
+          updateFields: PostUpdate!
+        }
+
+        input PostUpdate {
+          title: String
+          content: String
+          draft: Boolean
+        }
+
+        input DeletePostInput {
+          id: ID!
+        }
+
+        type PostOutput {
+          success: Boolean!
+          error: Error
+          data: Post
+        }
+
+        type PostsOutput {
+          success: Boolean!
+          error: Error
+          data: [Post]
+        }
+
+
+        type User {
           id: ID!
           name: String!
           email: String!
           createdAt: String!
           updatedAt: String!
           jwt: String
-
         }
-        type Error {
-          code:String,
-          message:String
 
+        type Post {
+          id: ID!
+          title: String!
+          content: String!
+          draft: Boolean!
+          userId: ID!
+          createdAt: String!
+          updatedAt: String!
+        }
+
+        type Error {
+          code: String,
+          message: String
         }
   DataSource:
     Type: AWS::AppSync::DataSource
@@ -168,7 +220,97 @@ Resources:
           }
         }
       ResponseMappingTemplate: $utils.toJson($context.result)
+  CreatePostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      TypeName: Mutation
+      FieldName: createPost
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Invoke",
+          "payload": {
+            "field": "createPost",
+            "arguments": $utils.toJson($context.arguments),
+            "headers": $utils.toJson($context.request.headers)
+          }
+        }
+      ResponseMappingTemplate: $utils.toJson($context.result)
 
+  UpdatePostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      TypeName: Mutation
+      FieldName: updatePost
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Invoke",
+          "payload": {
+            "field": "updatePost",
+            "arguments": $utils.toJson($context.arguments),
+            "headers": $utils.toJson($context.request.headers)
+          }
+        }
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  DeletePostResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      TypeName: Mutation
+      FieldName: deletePost
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Invoke",
+          "payload": {
+            "field": "deletePost",
+            "arguments": $utils.toJson($context.arguments),
+            "headers": $utils.toJson($context.request.headers)
+          }
+        }
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  GetUserPostsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      TypeName: Query
+      FieldName: getUserPosts
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Invoke",
+          "payload": {
+            "field": "getUserPosts",
+            "arguments": $utils.toJson($context.arguments),
+            "headers": $utils.toJson($context.request.headers)
+          }
+        }
+      ResponseMappingTemplate: $utils.toJson($context.result)
+  GetPostsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId: !GetAtt GraphQLAPI.ApiId
+      DataSourceName: !GetAtt DataSource.Name
+      TypeName: Query
+      FieldName: getPosts
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Invoke",
+          "payload": {
+            "field": "getPosts",
+            "arguments": $utils.toJson($context.arguments),
+            "headers": $utils.toJson($context.request.headers)
+          }
+        }
+      ResponseMappingTemplate: $utils.toJson($context.result)
   GraphQLAPIUrlParameter:
     Type: AWS::SSM::Parameter
     Properties:
@@ -178,3 +320,4 @@ Resources:
       Description:
         !Sub 'The ${ProjectName} GraphQLUrl for the data-gateway to be used in
         ${Environment}'
+

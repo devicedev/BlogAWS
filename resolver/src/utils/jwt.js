@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
-const {jwtSecret} = require('../config');
+const jwt = require("jsonwebtoken");
+const { jwtSecret } = require("../config");
 
-module.exports = (userData) => jwt.sign({userId: userData.id}, jwtSecret);
+module.exports = (userData) => jwt.sign({ userId: userData.id }, jwtSecret);

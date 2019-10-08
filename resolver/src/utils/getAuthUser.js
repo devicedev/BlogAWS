@@ -1,29 +1,29 @@
-const {NoJWTException, InvalidJWTException} = require('@exceptions');
+const { NoJWTException, InvalidJWTException } = require("@exceptions");
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const {jwtSecret} = require('../config');
+const { jwtSecret } = require("../config");
 
-module.exports = ({getUser}) => async (headers) => {
-    const token = headers['x-auth'];
+module.exports = ({ retrieveUser }) => async headers => {
+    const token = headers["x-auth"];
 
-    if (!token)
-        throw NoJWTException();
+    if (!token) throw NoJWTException();
 
     let payload;
 
     try {
-
-        payload = jwt.verify(token, jwtSecret).userId;
+        payload = jwt.verify(token, jwtSecret);
 
     } catch (err) {
         throw InvalidJWTException();
     }
-    const user = await getUser(payload.userId);
 
-    if(!user)
-        throw InvalidJWTException();
+    const user = await retrieveUser(payload.userId);
 
-    return user;
+    if (!user) throw InvalidJWTException();
 
+    return {
+        ...user,
+        jwt: token
+    };
 };

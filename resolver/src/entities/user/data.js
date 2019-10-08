@@ -2,7 +2,7 @@ module.exports = {
     UserData
 };
 
-function UserData({id, name, email, password, createdAt, updatedAt}) {
+function UserData({ id, name, email, password, createdAt, updatedAt }) {
     return Object.freeze({
         id,
         name,
@@ -11,6 +11,4 @@ function UserData({id, name, email, password, createdAt, updatedAt}) {
         createdAt,
         updatedAt
     });
-
 }
-

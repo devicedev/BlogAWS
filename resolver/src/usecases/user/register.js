@@ -1,26 +1,25 @@
 const {
-    factory: {create}
-} = require('@user');
+    factory: { create }
+} = require("@user");
 
-const {UserAlreadyExistsException} = require('@exceptions');
+const { UserAlreadyExistsException } = require("@exceptions");
 
+module.exports = ({
+    saveUser,
+    retrieveAllUsers
+}) => async creationInputData => {
+    const users = await retrieveAllUsers();
 
-module.exports = ({saveUser, getAllUsers}) => async (creationInputData) => {
-    console.log("register func");
-    const users = await getAllUsers();
-    console.log(users);
     if (emailTaken(creationInputData.email, users))
         throw UserAlreadyExistsException();
 
-    console.log("user");
     const user = await create(creationInputData);
 
     await saveUser(user);
 
     return user;
-
 };
 
 function emailTaken(email, users) {
-    return users.some((user) => user.email === email);
+    return users.some(user => user.email === email);
 }

@@ -1,10 +1,10 @@
-const uuidv4 = require('uuid/v4');
-const Joi = require('@hapi/joi');
-const bcrypt = require('bcryptjs');
+const uuidv4 = require("uuid/v4");
+const Joi = require("@hapi/joi");
+const bcrypt = require("bcryptjs");
 
-const {UserValidationException} = require('@exceptions');
+const { UserValidationException } = require("@exceptions");
 
-const {UserData} = require('./data');
+const { UserData } = require("./data");
 
 module.exports = {
     create
@@ -12,8 +12,6 @@ module.exports = {
 
 async function create(creationData) {
     const result = validate();
-
-    console.log(result.error);
 
     if (result.error) {
         throw UserValidationException(result.error.message);
@@ -39,9 +37,16 @@ async function create(creationData) {
 
         function makeValidationSchema() {
             return Joi.object().keys({
-                name: Joi.string().min(1).max(255).required(),
-                email: Joi.string().email().required(),
-                password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/).required(),
+                name: Joi.string()
+                    .min(1)
+                    .max(255)
+                    .required(),
+                email: Joi.string()
+                    .email()
+                    .required(),
+                password: Joi.string()
+                    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/)
+                    .required()
             });
         }
     }

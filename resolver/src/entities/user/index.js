@@ -1,4 +1,4 @@
 module.exports = {
-    data: require('./data'),
-    factory: require('./factory')
+    data: require("./data"),
+    factory: require("./factory")
 };

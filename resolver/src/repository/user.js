@@ -1,21 +1,20 @@
-const DynamoDB = require('aws-sdk/clients/dynamodb');
-
+const DynamoDB = require("aws-sdk/clients/dynamodb");
 
 const {
     fromDynamoItemToUserData,
     fromUserDataToDynamoItem
-} = require('./utils/mapper');
+} = require("./utils/mapper");
 
 const region = process.env.REGION;
 
 const TableName = process.env.USER_TABLE_NAME;
 
-const dynamo = new DynamoDB.DocumentClient({region});
+const dynamo = new DynamoDB.DocumentClient({ region });
 
 module.exports = {
     saveUser,
-    getUser,
-    getAllUsers
+    retrieveUser,
+    retrieveAllUsers
 };
 
 async function saveUser(userData) {
@@ -25,38 +24,38 @@ async function saveUser(userData) {
             Item: fromUserDataToDynamoItem(userData)
         };
 
-        global.logInfo('dynamo.saveUser', params);
+        global.logInfo("dynamo.saveUser", params);
 
         await dynamo.put(params).promise();
-
     } catch (err) {
-        global.logError('dynamo.saveUser', err);
+        global.logError("dynamo.saveUser", err);
 
         throw err;
     }
 }
 
-async function getUser(userId) {
+async function retrieveUser(userId) {
     try {
         const params = {
             TableName,
-            Key: userId
+            Key: {
+                id: userId
+            }
         };
 
         const data = await dynamo.get(params).promise();
 
-        global.logInfo('dynamo.getUser', params);
+        global.logInfo("dynamo.retrieveUser", params);
 
         return fromDynamoItemToUserData(data.Item);
-
     } catch (err) {
-        global.logError('dynamo.getUser', err);
+        global.logError("dynamo.retrieveUser", err);
 
         throw err;
     }
 }
 
-async function getAllUsers() {
+async function retrieveAllUsers() {
     try {
         const params = {
             TableName
@@ -64,12 +63,11 @@ async function getAllUsers() {
 
         const data = await dynamo.scan(params).promise();
 
-        global.logInfo('dynamo.getAllUsers', params);
+        global.logInfo("dynamo.retrieveAllUsers", params);
 
-        return data.Items.map((item) => fromDynamoItemToUserData(item))
-
+        return data.Items.map(item => fromDynamoItemToUserData(item));
     } catch (err) {
-        global.logError('dynamo.getAllUsers', err);
+        global.logError("dynamo.retrieveAllUsers", err);
 
         throw err;
     }

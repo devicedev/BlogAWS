@@ -1,9 +1,9 @@
 const {
-    factory: {create}
-} = require('@post');
+    factory: { create }
+} = require("@post");
 
-module.exports = ({savePost}) => async (input, authUser) => {
-    const postData = await create({
+module.exports = ({ savePost }) => async (authUser, input) => {
+    const postData = create({
         ...input,
         userId: authUser.id
     });

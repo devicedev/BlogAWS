@@ -1,10 +1,9 @@
-const {PostNotFoundException} = require('@exceptions');
+const { PostNotFoundException } = require("@exceptions");
 
-module.exports = ({getPost}) => async (id) => {
-    const post = await getPost(id);
+module.exports = ({ retrievePost }) => async id => {
+    const post = await retrievePost(id);
 
-    if(!post)
-        throw PostNotFoundException();
+    if (!post) throw PostNotFoundException();
 
     return post;
 };

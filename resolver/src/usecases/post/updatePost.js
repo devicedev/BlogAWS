@@ -1,25 +1,22 @@
 const {
-    behaviour: update
-} = require('@post');
+    behaviour: { update }
+} = require("@post");
 
 const {
     PostNotFoundException,
     UserHasNoAccessToPostException
-} = require('@exception');
+} = require("@exceptions");
 
-module.exports = ({getPost, savePost}) => async (authUser, input) => {
-    let post = await getPost(input.id);
+module.exports = ({ retrievePost, savePost }) => async (authUser, input) => {
+    let post = await retrievePost(authUser.id, input.id);
 
-    if (!post)
-        throw PostNotFoundException();
+    if (!post) throw PostNotFoundException();
 
-    if (post.userId !== authUser.id)
-        throw UserHasNoAccessToPostException();
+    if (post.userId !== authUser.id) throw UserHasNoAccessToPostException();
 
-    post = update(post, input);
+    post = update(post, input.updateFields);
 
     await savePost(post);
 
     return post;
-
 };
